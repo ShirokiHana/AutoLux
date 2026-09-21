@@ -1,0 +1,8 @@
+*.xml
+.DS_Store
+.gitattributes
+*.phar
+composer.lock
+/vendor
+/.idea
+*.env

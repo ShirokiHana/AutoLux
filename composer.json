@@ -1,2 +1,11 @@
 {
+  "config": {
+    "process-timeout": 0
+  },
+  "scripts": {
+    "dev": "php -S localhost:3000 -t public"
+  },
+  "require": {
+    "ext-pdo": "*"
+  }
 }
