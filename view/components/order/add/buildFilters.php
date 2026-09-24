@@ -2,7 +2,7 @@
 
 use lib\FnArray;
 
-require_once basePath( 'view/components/order/addOption.php' );
+require_once basePath( 'view/components/order/add/addOption.php' );
 
 function buildFilters( array $data, array $stages ) {
         // Base case, end recursion

@@ -1,12 +1,11 @@
-<h2>Add to cart:</h2>
 <form>
     <label for="">
-        <?php load( 'order/buildFilters.php', 'buildFilters', [ $data, $options ] ); ?>
+        Add Item to Cart:
+        <?php load( 'order/add/buildFilters.php', 'buildFilters', [ $data, $options ] ); ?>
     </label>
+    <input type="submit" value="Add">
+    <button>Info V</button>
 </form>
-<input type="submit" value="Add">
-<button>Info V</button>
-
 <script>
     const selectors = <?= json_encode( $options ) ?>.map( element => document.querySelector( `#${element}` ) );
 

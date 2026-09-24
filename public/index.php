@@ -3,6 +3,7 @@
 use core\Database;
 use core\Router;
 
+    session_start();
     const BASE_PATH = __DIR__ . '/../';
 
     require_once BASE_PATH . 'lib/helperFunctions.php';
@@ -29,9 +30,10 @@ use core\Router;
 
     $uri = parse_url( $_SERVER[ 'REQUEST_URI' ] )[ 'path' ];
     $method = $_POST[ '__method' ] ?? $_SERVER[ 'REQUEST_METHOD' ];
+    $request = $_POST;
 
     try {
-        Router::route( $method, $uri );
+        Router::route( $method, $uri, $request );
     } catch ( Exception $exception ) {
         abort( $exception );
     }

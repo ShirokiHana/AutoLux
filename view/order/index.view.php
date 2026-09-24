@@ -14,14 +14,14 @@ require_once basePath( 'view/components/header.php' ) ?>
         </label>
         <input type="submit" value="+">
 
-        <?php view( 'components/order/addToCart.php', 'basePath', [
+        <?php view( 'components/order/add/addToCart.php', 'basePath', [
                 'data' => $attr[ 'parts' ],
                 'options' => $attr[ 'options' ]
         ] ); ?>
 
-        <?php view( 'components/order/buildCart.php', 'basePath', [
-                'data' => $attr[ 'parts' ],
-                'options' => $attr[ 'options' ]
+        <?php view( 'components/order/cart/buildCart.php', 'basePath', [
+                'cart' => $attr[ 'cart' ],
+                'cartOptions' => $attr[ 'cartOptions' ],
         ] ); ?>
 
         <p>Payment method</p>

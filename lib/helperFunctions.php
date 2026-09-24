@@ -33,6 +33,18 @@ use JetBrains\PhpStorm\NoReturn;
         return BASE_PATH . $path;
     }
 
-    $mergeState = fn( array $newState = [] ) => function( array $staleState = [] ) use ( $newState ) {
-        return array_merge( $staleState, $newState );
-    };
+    #[NoReturn]
+    function postRedirectGet(string $location ) : NoReturn {
+        header( "location: /$location" );
+        exit();
+    }
+
+    function mergeState( $newState = [] ) : Closure {
+        return function( $staleState = [] ) use ( $newState ) {
+            return array_merge( $staleState, $newState );
+        };
+    }
+
+    function formatStringLabel( string $string ) {
+        return ucwords( str_replace( [ 'part_', '_' ], [ '', ' ' ], $string ) );
+    }
