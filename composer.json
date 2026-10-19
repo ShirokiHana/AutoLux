@@ -3,9 +3,12 @@
     "process-timeout": 0
   },
   "scripts": {
-    "dev": "php -S localhost:3000 -t public"
+    "dev": "php -S localhost:3000 -t public public/index.php",
+    "startMySQL": "brew services start mysql",
+    "stopMySQL": "brew services stop mysql"
   },
   "require": {
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-curl": "*"
   }
 }

@@ -3,7 +3,12 @@
 use core\Database;
 use core\Router;
 
-    session_start();
+// TODO: Complete controller guards to stop cURL/Postman shenanigans.
+
+if ( PHP_SAPI === 'cli-server' && is_file( __DIR__ . parse_url( $_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH ) ) )
+    return false;
+
+session_start();
     const BASE_PATH = __DIR__ . '/../';
 
     require_once BASE_PATH . 'lib/helperFunctions.php';
@@ -21,19 +26,24 @@ use core\Router;
         Database::readEnv( basePath( 'db.env' ) );
         $dsn = Database::prepareDSN( host: $_ENV[ 'DB_HOST' ], port: $_ENV[ 'DB_PORT' ], dbname: $_ENV[ 'DB_NAME' ] );
         Database::connection( $dsn, $_ENV[ 'DB_USER' ], $_ENV[ 'DB_PASSWORD' ], [ PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION ] );
-    } catch ( PDOException $exception ) {
-        // TODO: Fix exception router.
-        abort( $exception, 503 );
+    } catch ( PDOException $PDOException ) {
+        error_log( $PDOException->getMessage() );
+        abort( new Exception( 'Unable to connect to database service' ), 503 );
     }
 
     // ----------------------Routing
 
-    $uri = parse_url( $_SERVER[ 'REQUEST_URI' ] )[ 'path' ];
+    $path = rtrim( parse_url( $_SERVER[ 'REQUEST_URI' ] )[ 'path' ], '/' );
+    $uri = $path === '' ? '/' : $path;
+
     $method = $_POST[ '__method' ] ?? $_SERVER[ 'REQUEST_METHOD' ];
-    $request = $_POST;
+    $request = array_replace( $_GET, $_POST );
 
     try {
-        Router::route( $method, $uri, $request );
+        Router::route($method, $uri, $request);
+    } catch ( PDOException $PDOException ) {
+        error_log( $PDOException->getMessage() );
+        abort( new Exception( 'Database service unavailable' ), 503 );
     } catch ( Exception $exception ) {
-        abort( $exception );
+        abort( $exception, $exception->getCode() ?: 400 );
     }

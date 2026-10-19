@@ -1,37 +1,55 @@
 <?php
 
+use core\SessionHelper;
 use lib\FnArray;
 
 require_once basePath( 'view/components/order/add/addOption.php' );
 
-function buildFilters( array $data, array $stages ) {
+function buildFilters( array $data, ?array $stages = null ) {
         // Base case, end recursion
-        if ( empty( $data ) || empty( $stages ) ) {
+        if ( empty( $data ) ) {
             return;
         }
 
         // Select recursion stage [ part_type => brand => part_name ]
         // Will be removed from stages array on each iteration to guarantee recursion end
-        $currentStage = $stages[ 0 ];
+        if ( $stages === null )
+            $stages = $data[ 0 ]
+                    |> array_keys( ... )
+                    // Remove part_id
+                    |> ( fn( $x ) => array_diff( $x, [ 'part_id' ] ) )
+                    |> array_values( ... );
+
+        if ( empty( $stages ) ) {
+            $id = FnArray::extractValue( $data, 'part_id' );
+            echo "<input type='hidden' name='part_id' value='$id'>";
+            return;
+        }
+
+        // Mutation of array
+        $currentStage = array_shift( $stages );
 
         // Remove duplicates for rendering and re-index array
         $uniqueDataValues = array_values( array_unique( FnArray::map( $data, fn( $element ) => $element[ $currentStage ] ) ) );
-        //dd( $uniqueDataValues );
+        // screen( $uniqueDataValues );
+
+        $old = SessionHelper::getFlash( 'old' );
+        $requested = $_GET[ $currentStage ] ?? $old[ $currentStage ] ?? null;
 
         // Fetch currently select <option>, otherwise default to first
-        $isStateStale = in_array( $_GET[ $currentStage ] ?? null, $uniqueDataValues );
+        $isStateStale = !in_array( $requested, $uniqueDataValues );
+
         echo 'Stale state: ';
         echo  $isStateStale ? 'false' : 'true';
-        $selectedOption = $isStateStale ? $_GET[ $currentStage ] : $uniqueDataValues[ 0 ];
-        //dd( $selected );
+
+        $selectedOption = $isStateStale ? $uniqueDataValues[ 0 ] : $requested;
+        // screen( $selected );
+
+        // Filter out used array values
+        $remainderData = FnArray::filter( $data, fn( $element ) => strcmp( $element[ $currentStage ], $selectedOption ) === 0 );
 
         // Build <select> and <option>s
         addOption( $uniqueDataValues, $currentStage, $selectedOption );
-
-        // Filter out used array values
-        $remainderStages = FnArray::slice( $stages, 1 );
-        $remainderData = FnArray::filter( $data, fn( $element ) => strcmp( $element[ $currentStage ], $selectedOption ) === 0 );
-
         // Send next step to recursion
-        buildFilters( $remainderData, $remainderStages );
+        buildFilters( $remainderData, $stages );
     }

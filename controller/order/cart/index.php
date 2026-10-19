@@ -1,23 +1,20 @@
 <?php
 
+use core\CartHelper;
 use core\Database;
 
-// Add to cart rendering - SINGLE SOURCE OF TRUTH
-$options = [ 'part_type', 'brand', 'part_name' ];
+    screen( CartHelper::getCartState() );
 
-$spread = implode( ', ', $options );
-$parts = Database::fetchAll( "SELECT $spread FROM parts" );
+    // Add to cart rendering - SINGLE SOURCE OF TRUTH
+    $options = [ 'part_id', 'part_type', 'brand', 'part_name' ];
 
-// Cart rendering
-// TODO: $cart is no longer required, calculate state out of place within proper scope. ✅
-$cart = $_SESSION[ 'cart' ] ?? [];
-$cartOptions = array_merge( $options, [ 'quantity' ] );
+    $spread = implode( ', ', $options );
+    $parts = Database::fetch( 'All', "SELECT $spread FROM parts" );
 
-view( 'order/cart/index.view.php', 'basePath', [
-    // Add to cart rendering
-    'parts' => $parts,
-    'options' => $options,
-    // Cart rendering
-    'cart' => $cart,
-    'cartOptions' => $cartOptions,
-] );
+    view( 'order/cart/index.view.php', 'basePath', [
+        // Add to cart rendering
+        'parts' => $parts,
+        // Cart rendering
+        'cart' => CartHelper::getCartState(),
+        'cartOptions' => CartHelper::getRenderingOptions( $options ),
+    ] );

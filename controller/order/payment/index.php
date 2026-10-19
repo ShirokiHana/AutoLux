@@ -1,33 +1,29 @@
 <?php
 
+use core\payment\PaymentMethod;
+use core\CartHelper;
 use core\Database;
+use lib\FnArray;
 
-// Client dropdown rendering
-$clients = Database::fetchAll( 'SELECT client_name FROM clients' );
+// 1 -> VISA, 2 -> MasterCard, 3 -> MBWay
 
-// Add to cart rendering - SINGLE SOURCE OF TRUTH
-$options = [ 'part_type', 'brand', 'part_name' ];
-
-$spread = implode( ', ', $options );
-$parts = Database::fetchAll( "SELECT $spread FROM parts" );
-
-// Cart rendering
-// TODO: $cart is no longer required, calculate state out of place within proper scope. ✅
-$cart = $_SESSION[ 'cart' ] ?? [];
-$cartOptions = array_merge( $options, [ 'quantity' ] );
-
-// Payment options rendering
-$payment = Database::fetchAll( 'SELECT method_name FROM payment_methods' );
-
-view( 'order/index.view.php', 'basePath', [
-    // Client dropdown rendering
-    'clients' => $clients,
-    // Add to cart rendering
-    'parts' => $parts,
-    'options' => $options,
-    // Cart rendering
-    'cart' => $cart,
-    'cartOptions' => $cartOptions,
     // Payment options rendering
-    'payment' => $payment
-] );
+    $payment = Database::fetch( 'All', 'SELECT payment_method_id, method_name FROM payment_methods' );
+
+    $requested = strtoupper( $request[ 'payment_method' ] ?? '' );
+
+    // Fall back to the first method when the param is missing or unknown
+    $match = FnArray::filter( $payment, fn( $p ) => strtoupper( $p[ 'method_name' ] ) === $requested );
+    $selected = reset( $match ) ?: $payment[ 0 ];
+
+    $payment_method = $selected[ 'method_name' ];
+    $payment_id = (int) $selected[ 'payment_method_id' ];
+
+    view( 'order/payment/index.view.php', 'basePath', [
+        // Cart rendering
+        'cart' => CartHelper::getCartState(),
+        'cartOptions' => CartHelper::getDefaultRenderingOptions(),
+        // Payment options rendering
+        'payment' => $payment,
+        'payment_method' => PaymentMethod::output( $payment_id ),
+    ] );

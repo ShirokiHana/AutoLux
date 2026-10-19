@@ -1,18 +1,18 @@
-<form>
+<?php use lib\FnArray;
+$addToCartSelectors = array_keys( FnArray::removeKey( $data[ 0 ], 'part_id' ) ); ?>
+<form action="/order/cart" method="POST">
     <label for="">
         Add Item to Cart:
-        <?php load( 'order/add/buildFilters.php', 'buildFilters', [ $data, $options ] ); ?>
+        <?php load( 'order/add/buildFilters.php', 'buildFilters', [ $data ] ); ?>
     </label>
     <input type="submit" value="Add">
-    <button>Info V</button>
+    <input type="hidden" name="__method" value="PUT">
 </form>
 <script>
-    const selectors = <?= json_encode( $options ) ?>.map( element => document.querySelector( `#${element}` ) );
+    const addToCartSelectors = <?= json_encode( $addToCartSelectors ) ?>.map( element => document.querySelector( `#${element}` ) );
 
-    selectors.forEach( element => element.addEventListener( 'change', ( eventObj ) => {
-        const params = new URLSearchParams( window.location.search );
-        params.set( eventObj.target.id, eventObj.target.value );
-        window.location.search = params.toString();
+    addToCartSelectors.forEach( element => element.addEventListener( 'change', ( eventObj ) => {
+        query( { [ eventObj.target.id ]: eventObj.target.value } )
         // sharable buying link, it's not a bug, it's a feature!
 
         // console.log( 'Params: ', [ ...params.entries() ].flat().map( element => element.replaceAll( ' ', '+' ) ) );

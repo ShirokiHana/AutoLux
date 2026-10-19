@@ -17,7 +17,6 @@ require_once basePath( 'view/components/header.php' ) ?>
                 </tr>
             <?php } ) ?>
         </table>
-        <a href="/">Home</a>
     </article>
 
 <?php require_once basePath( 'view/components/footer.php' ) ?>

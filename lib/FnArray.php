@@ -28,6 +28,15 @@ class FnArray {
         return array_slice( $array, $offset );
     }
 
+    public static function removeKey( array $array, string $key ) : array {
+        return array_diff_key( $array, [ $key => null ] );
+    }
+
+    public static function extractValue( array $array, string $key ) : string {
+        $array = array_unique( array_column( $array, $key ) );
+        return reset( $array );
+    }
+
     // Out of place array returned, save to $_SESSION
     public static function mergeState( array $staleState, int $id, int $quantity ) : array {
         return [ ...$staleState, $id => ( $staleState[ $id ] ?? 0 ) + $quantity ]; // Ensures proper addition
@@ -38,7 +47,7 @@ class FnArray {
     public static function mergeAll( array $staleState, array $items ) : array {
         return array_reduce(
             $items,
-            fn( $carry, $item) => self::mergeState( $carry, $item[ 'id' ], $item [ 'quantity' ] ),
+            fn( $carry, $item ) => self::mergeState( $carry, $item[ 'id' ], $item [ 'quantity' ] ),
             $staleState
         );
     }
