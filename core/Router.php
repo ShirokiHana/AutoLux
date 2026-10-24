@@ -186,7 +186,7 @@ class Router {
                 matchRestockSupplier( ... ),
                 restockRequireQuantity( ... ),
                 removeMethod( ... ),
-                clientRequired( ... ),
+                restockClientRequired( ... ),
             ] ], // R17
             // middleware writes client id to sess, PRG to /order/cart
             // [ 'uri' => 'client/new', 'controller' => 'client/select.php', 'middleware' => [  ] ],

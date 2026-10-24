@@ -4,31 +4,16 @@
     use core\SessionHelper;
     use lib\FnArray;
 
-    screen( $request );
-
 try {
 
-        $TEST_MODE = false;
-
-        if ( $TEST_MODE ) {
-
-            $supplierId = 1;
-            $items = [
-                [ 'part_id' => 1, 'quantity' => 2 ],
-            ];
-
-        } else {
-
-            $supplierId = ( int ) ( $request[ 'supplier_id' ] ?? 0 );
-            $items = FnArray::map(
-                $request[ 'restock' ] ?? [],
-                fn( $element ) => [
-                    'part_id' => ( int ) $element[ 'part_id' ],
-                    'quantity' => ( int ) $element[ 'quantity' ],
-                ]
-            );
-
-        }
+        $supplierId = ( int ) ( $request[ 'supplier_id' ] ?? 0 );
+        $items = FnArray::map(
+            $request[ 'restock' ] ?? [],
+            fn( $element ) => [
+                'part_id' => ( int ) $element[ 'part_id' ],
+                'quantity' => ( int ) $element[ 'quantity' ],
+            ]
+        );
 
 
         if ( $supplierId <= 0 || $items === [] ) {

@@ -31,7 +31,6 @@ function buildFilters( array $data, ?array $stages = null ) {
 
         // Remove duplicates for rendering and re-index array
         $uniqueDataValues = array_values( array_unique( FnArray::map( $data, fn( $element ) => $element[ $currentStage ] ) ) );
-        // screen( $uniqueDataValues );
 
         $old = SessionHelper::getFlash( 'old' );
         $requested = $_GET[ $currentStage ] ?? $old[ $currentStage ] ?? null;
@@ -43,7 +42,6 @@ function buildFilters( array $data, ?array $stages = null ) {
         echo  $isStateStale ? 'false' : 'true';
 
         $selectedOption = $isStateStale ? $uniqueDataValues[ 0 ] : $requested;
-        // screen( $selected );
 
         // Filter out used array values
         $remainderData = FnArray::filter( $data, fn( $element ) => strcmp( $element[ $currentStage ], $selectedOption ) === 0 );

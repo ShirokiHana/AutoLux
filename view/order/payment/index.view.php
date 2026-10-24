@@ -4,8 +4,6 @@ use core\CartHelper;
 use core\SessionHelper;
 use lib\FnArray;
 
-screen( CartHelper::getCartState() );
-
 require_once basePath( 'view/components/header.php' ) ?>
 
     <?= implode( '', SessionHelper::get( 'client' ) ) ?>
