@@ -4,6 +4,7 @@ require_once basePath( 'view/components/header.php' ) ?>
 
         <?php view( 'components/order/add/addToCart.php', 'basePath', [
             'data' => $attr[ 'parts' ],
+            'target' => '/order/cart'
         ] ); ?>
 
         <form action="/order/cart" method="POST">

@@ -47,7 +47,7 @@
         let direction = 1;
 
         element.addEventListener( 'click', ( eventObj ) => {
-            console.log( eventObj );
+            eventObj.preventDefault();
             const rows = [ ...renderedTable.rows ];
 
             rows.sort( sortBy( column, direction ) );

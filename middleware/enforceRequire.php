@@ -1,6 +1,7 @@
 <?php
     namespace middleware;
 
+    use Closure;
     use core\payment\PaymentMethod;
     use core\SessionHelper;
     use lib\FnArray;
@@ -16,10 +17,26 @@
         return $request;
     }
 
+    function restockClientRequired( array $request ) : array {
+        $currentClient = $request[ 'supplier_id' ];
+        if ( empty( $currentClient ) ) {
+            postRedirectGet( 'management/order' );
+        }
+        return $request;
+    }
+
     function filledCartRequired( array $request ) : array {
         $cart = SessionHelper::get( 'cart' );
         if ( empty( $cart ) ) {
             postRedirectGet( 'order/cart' );
+        }
+        return $request;
+    }
+
+    function filledRestockRequired( array $request ) : array {
+        $cart = SessionHelper::get( 'restockCart' );
+        if ( empty( $cart ) ) {
+            postRedirectGet( 'management/order/cart?supplier_id=' . $request[ 'supplier_id' ] );
         }
         return $request;
     }
@@ -36,8 +53,31 @@
         $id = intInRange( $request[ 'supplier_id' ] ?? null, 1, PHP_INT_MAX );
         if ( $id === false )
             postRedirectGet( 'management/order' );
-        return [ ...$request, 'supplier_id' => $id ];
+        return $request;
     }
+
+    /*function quantityRequired( string $target ) { return
+        function( array $request ) use ( $target ) : array {
+            $quantity = intInRange( $request[ 'quantity' ] ?? null, 1, PHP_INT_MAX );
+            if ( $quantity <= 0 )
+                postRedirectGet( $target );
+            return $request;
+            };
+        }*/
+
+    function cartRequireQuantity( array $request ) : array {
+        $quantity = intInRange( $request[ 'quantity' ] ?? null, 1, PHP_INT_MAX );
+        if ( $quantity <= 0 )
+            postRedirectGet( 'order/cart' );
+        return $request;
+    };
+
+    function restockRequireQuantity( array $request ) : array {
+        $quantity = intInRange( $request[ 'quantity' ] ?? null, 1, PHP_INT_MAX );
+        if ( $quantity <= 0 )
+            postRedirectGet( 'management/order/cart?supplier_id=' . $request[ 'supplier_id' ] );
+        return $request;
+    };
 
     function restockReceiptRequired( array $request ) : array {
         if ( empty( SessionHelper::getFlash( 'restock' ) ) )

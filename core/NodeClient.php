@@ -59,7 +59,7 @@ class NodeClient {
     /**
      * @throws Exception
      */
-    public static function get(string $path ) : string {
+    public static function get( string $path ) : string {
         // no trailing slash
         $base = rtrim( $_ENV[ 'NODE_URL' ] ?? 'http://localhost:3030', '/' );
         $cURL = curl_init( $base . $path );

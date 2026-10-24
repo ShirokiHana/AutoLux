@@ -3,8 +3,6 @@
 use core\CartHelper;
 use core\Database;
 
-    screen( CartHelper::getCartState() );
-
     // Add to cart rendering - SINGLE SOURCE OF TRUTH
     $options = [ 'part_id', 'part_type', 'brand', 'part_name' ];
 

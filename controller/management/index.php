@@ -49,5 +49,6 @@
         'page' => $page,
         'maxPage' => $maxPage,
         'uri' => $uri,
-        'limit' => $limit
+        'limit' => $limit,
+        'target' => 'order/cart',
     ] );

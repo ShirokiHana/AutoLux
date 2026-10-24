@@ -1,6 +1,7 @@
 <?php
     namespace middleware;
 
+    use core\RestockHelper;
     use core\SessionHelper;
 
     function updateSessionClient( array $request ) : array {
@@ -22,6 +23,31 @@
         if ( $requestClient !== ( $currentClient[ 0 ] ?? null ) ) {
             SessionHelper::set( 'cart', [] );
         }
+        return $request;
+    }
+
+    function wipeRestockCart( array $request ) : array {
+        SessionHelper::set( 'restockCart', [] );
+        return $request;
+    }
+
+    function matchRestockSupplier( array $request ) : array {
+        $supplierId = ( int ) $request[ 'supplier_id' ];
+
+        foreach ( SessionHelper::get( 'restockCart' ) as $item ) {
+            if ( ( int ) ( $item[ 'supplier_id' ] ?? 0 ) !== $supplierId ) {
+                wipeRestockCart( $request );
+
+                SessionHelper::flashInit( 'errors', [
+                    'supplier' => 'The restock cart was cleared because the supplier changed.',
+                ] );
+
+                postRedirectGet(
+                    'management/order/cart?supplier_id=' . $supplierId
+                );
+            }
+        }
+
         return $request;
     }
 

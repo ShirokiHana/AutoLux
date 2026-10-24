@@ -105,24 +105,27 @@
     }
 
     function sanitizeRestock( array $request ) : array {
-        $quantities = ( array )( $request[ 'quantity' ] ?? [] );
-
-        $items = FnArray::map(
-            array_keys( $quantities ),
-            fn( $partId ) => [
-                'part_id'  => intInRange( $partId, 1, PHP_INT_MAX ),
-                'quantity' => intInRange( $quantities[ $partId ], 1, 1000 ),
-            ]
+        $items = array_map(
+            fn( array $item ) => [
+                'part_id' => intInRange( $item[ 'part_id' ] ?? null, 1, PHP_INT_MAX ),
+                'quantity' => intInRange( $item[ 'quantity' ] ?? null, 1, 1000 ),
+            ],
+            array_values( SessionHelper::get( 'restockCart' ) )
         );
 
-        $invalid = FnArray::filter(
+        $invalid = array_filter(
             $items,
-            fn( array $item ) => $item[ 'part_id' ] === false || $item[ 'quantity' ] === false
+            fn( array $item ) => $item[ 'part_id' ] === false
+                || $item[ 'quantity' ] === false
         );
 
-        if ( empty( $items ) || !empty( $invalid ) ) {
-            SessionHelper::flashInit( 'errors', [ 'quantity' => 'Add at least one valid part to restock.' ] );
-            postRedirectGet( 'management/order/cart?supplier_id=' . $request[ 'supplier_id' ] );
+        if ( $items === [] || $invalid !== [] ) {
+            SessionHelper::flashInit( 'errors', [
+                'quantity' => 'Add at least one valid part to restock.',
+            ] );
+            postRedirectGet(
+                'management/order/cart?supplier_id=' . $request[ 'supplier_id' ]
+            );
         }
 
         return [ ...$request, 'restock' => $items ];

@@ -1,4 +1,5 @@
 <?php
+
 use core\SessionHelper;
 
     view( 'management/confirmation.view.php', 'basePath',

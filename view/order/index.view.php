@@ -16,7 +16,7 @@ require_once basePath( 'view/components/header.php' ) ?>
 
         <?php view( 'components/order/add/addToCart.php', 'basePath', [
                 'data' => $attr[ 'parts' ],
-                'options' => $attr[ 'options' ]
+                'options' => $attr[ 'options' ],
         ] ); ?>
 
         <?php view( 'components/order/cart/buildCart.php', 'basePath', [

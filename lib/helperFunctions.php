@@ -51,22 +51,22 @@ function screen( $var ) : void {
     }
 
     #[NoReturn]
-    function postRedirectGet(string $location ) : NoReturn {
+    function postRedirectGet( string $location ) : NoReturn {
         header( "location: /$location" );
         exit();
     }
 
-    function mergeCartState( array | null $staleState ) : Closure {
-        return function( array $newState ) use ( $staleState ) : void {
-            $key = $newState
+    function mergeCartState( array | null $staleState, string $sessionKey = 'cart' ) : Closure {
+        return function( array $newState ) use ( $staleState, $sessionKey ) : void {
+            $key = FnArray::removeKey( $newState, 'quantity' )
                     |> array_values( ... )
                     |> ( fn( $x ) => FnArray::map( $x, fn( $entry ) => str_replace( ' ', '', $entry ) ) )
                     |> ( fn( $x ) => implode( '-', $x ) );
 
             $entryExists = $staleState[ $key ] ?? [ ...$newState, 'quantity' => 0 ];
-            $_SESSION[ 'cart' ][ $key ] = [
+            $_SESSION[ $sessionKey ][ $key ] = [
                 ...$entryExists,
-                'quantity' => $entryExists[ 'quantity' ] + 1
+                'quantity' => $entryExists[ 'quantity' ] + $newState[ 'quantity' ]
             ];
         };
     }

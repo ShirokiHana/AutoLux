@@ -12,15 +12,9 @@ use lib\FnArray;
         'payment_method_id' => $request[ 'method-id' ],
     ];
 
-    screen( $paramsOrder );
-
     $cart = FnArray::map( CartHelper::getCartState(),
         fn( $element ) => [ ...$element, 'unit_price' => CartHelper::fetchPartPrice( $element[ 'part_id' ] ) ]
     );
-
-    screen( $cart );
-
-    // Database::pushData( 'INSERT INTO orders ( client_id, payment_method_id ) VALUES ( :client_id, :payment_method_id )', $paramsOrder );
 
     // Link items to order
 

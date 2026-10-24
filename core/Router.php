@@ -11,13 +11,17 @@ use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use lib\FnArray;
 // Enforce
-use function middleware\captureAdminId;
+use function middleware\cartRequireQuantity;
 use function middleware\clientRequired;
 use function middleware\filledCartRequired;
+use function middleware\filledRestockRequired;
+use function middleware\matchRestockSupplier;
 use function middleware\paymentRequired;
 use function middleware\receiptRequired;
 // Session
+use function middleware\restockClientRequired;
 use function middleware\restockReceiptRequired;
+use function middleware\restockRequireQuantity;
 use function middleware\sanitizeClientEdit;
 use function middleware\sanitizeClientFilter;
 use function middleware\sanitizeOrderFilter;
@@ -28,6 +32,7 @@ use function middleware\sanitizeSupplier;
 use function middleware\supplierRequired;
 use function middleware\updateSessionClient;
 use function middleware\viewRequest;
+use function middleware\wipeRestockCart;
 use function middleware\wipeSessionClient;
 use function middleware\wipeSessionCart;
 // Reshape
@@ -47,10 +52,6 @@ class Router {
                 sanitizeOrderFilter( ... ),
             ] ], // R1
 
-            [ 'uri' => '/admin/orders', 'controller' => 'administration/orders/list.php', 'middleware' => [
-
-            ] ], // R1
-
             [ 'uri' => '/admin/orders/{id}', 'controller' => 'administration/orders/show.php', 'middleware' => [
 
             ] ], // R1
@@ -68,10 +69,12 @@ class Router {
             [ 'uri' => '/logout', 'controller' => '.php' ], // R4
             // load node app
             [ 'uri' => '/management/order', 'controller' => 'management/select.php', 'middleware' => [  ] ], // R5
-            [ 'uri' => '/management/order/cart', 'controller' => 'management/cart.php', 'middleware' => [
+
+            [ 'uri' => '/management/order/cart', 'controller' => 'management/cart/cart.php', 'middleware' => [
+                matchRestockSupplier( ... ),
                 supplierRequired( ... ),
             ] ], //
-            [ 'uri' => '/management/order/confirmation', 'controller' => 'management/confirmation.php', 'middleware' => [
+            [ 'uri' => '/management/order/confirmation', 'controller' => 'management/cart/confirmation.php', 'middleware' => [
                 restockReceiptRequired( ... ),
             ] ], //
             // Render client list -> new client || cart
@@ -117,8 +120,9 @@ class Router {
             [ 'uri' => '/management/order', 'controller' => 'management/supplier.php', 'middleware' => [
                 supplierRequired( ... ),
             ] ], // R14
-            [ 'uri' => '/management/order/cart', 'controller' => 'management/restock.php', 'middleware' => [
+            [ 'uri' => '/management/order/cart', 'controller' => 'management/cart/restock.php', 'middleware' => [
                 sanitizeRestock( ... ),
+                matchRestockSupplier( ... ),
                 supplierRequired( ... ),
             ] ], // R15
             [ 'uri' => '/login', 'controller' => 'session/store.php', 'middleware' => [
@@ -142,6 +146,18 @@ class Router {
                 filledCartRequired( ... ),
                 clientRequired( ... ),
             ] ], // R15
+
+            [ 'uri' => '/management/order/cart', 'controller' => 'management/cart/destroy.php', 'middleware' => [
+                wipeRestockCart( ... ),
+                // filledRestockRequired( ... ),
+                // restockClientRequired( ... ),
+            ] ], // R15
+
+            [ 'uri' => '/management/order/cart/{id}', 'controller' => 'management/cart/remove.php', 'middleware' => [
+                filledRestockRequired( ... ),
+                restockClientRequired( ... ),
+            ] ], // R15
+
             [ 'uri' => '/admin/clients/{id}', 'controller' => 'administration/clients/destroy.php' ],
 
             [ 'uri' => '/order/cart/items/{part_id}', 'controller' => 'order/cart/remove.php', 'middleware' => [
@@ -161,9 +177,17 @@ class Router {
         [ 'PUT',
             // middleware add/delete session cart, prg to render cart
             [ 'uri' => '/order/cart', 'controller' => 'order/cart/replace.php', 'middleware' => [
+                cartRequireQuantity( ... ),
                 removeMethod( ... ),
                 clientRequired( ... ),
-            ] ], // updateSessionCart( ... ) // R17
+            ] ], // R17
+
+            [ 'uri' => '/management/order/cart', 'controller' => 'management/cart/replace.php', 'middleware' => [
+                matchRestockSupplier( ... ),
+                restockRequireQuantity( ... ),
+                removeMethod( ... ),
+                clientRequired( ... ),
+            ] ], // R17
             // middleware writes client id to sess, PRG to /order/cart
             // [ 'uri' => 'client/new', 'controller' => 'client/select.php', 'middleware' => [  ] ],
         ],
@@ -188,6 +212,9 @@ class Router {
         } elseif ( preg_match( '#^/order/cart/items/(\d+)$#', $uri, $matches ) ) {
             $request[ 'part_id' ] = ( int ) $matches[ 1 ];
             $uri = '/order/cart/items/{part_id}';
+        }  elseif ( preg_match( '#^/management/order/cart/(\d+)$#', $uri, $matches ) ) {
+            $request[ 'id' ] = ( int ) $matches[ 1 ];
+            $uri = '/management/order/cart/{id}';
         }
         // --------------PUT IN MIDDLEWARE
 
@@ -205,6 +232,7 @@ class Router {
         // Global middleware
         try {
             CartHelper::set( $_SESSION[ 'cart' ] ?? [] );
+            RestockHelper::set( $_SESSION[ 'restockCart' ] ?? [] );
         } catch ( Exception $exception ) {
             abort( throw new Exception( "Internal Server Error: $exception" ), 500 );
         }
