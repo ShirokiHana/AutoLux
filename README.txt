@@ -43,8 +43,7 @@ PHP -> Node.js HTTP API -> supplier_db (MySQL):
   Suppliers, their parts catalogue, supplier orders and order items.
 
 The data source is the supplied MySQL demonstration data in autolux_db and
-supplier_db. The A/B/C classification mentioned in the assignment brief is
-awaiting clarification from the teacher.
+supplier_db.
 
 Matching parts in both databases share the same part_id and represent the
 same product. Keep these identifiers aligned when changing the sample data.
