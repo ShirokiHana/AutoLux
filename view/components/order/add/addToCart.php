@@ -1,4 +1,10 @@
 <?php use lib\FnArray;
+
+    if ( empty( $attr[ 'data' ] ) ) { ?>
+        <p>No supplier</p>
+        <?php return;
+    }
+
     $addToCartSelectors = array_keys( FnArray::removeKey( $attr[ 'data' ][ 0 ], 'part_id' ) ); ?>
 
     <form action="<?= $attr[ 'target' ] ?>" method="POST">

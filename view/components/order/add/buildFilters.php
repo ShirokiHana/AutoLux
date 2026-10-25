@@ -38,8 +38,8 @@ function buildFilters( array $data, ?array $stages = null ) {
         // Fetch currently select <option>, otherwise default to first
         $isStateStale = !in_array( $requested, $uniqueDataValues );
 
-        echo 'Stale state: ';
-        echo  $isStateStale ? 'false' : 'true';
+        // echo 'Stale state: ';
+        // echo  $isStateStale ? 'false' : 'true';
 
         $selectedOption = $isStateStale ? $uniqueDataValues[ 0 ] : $requested;
 
