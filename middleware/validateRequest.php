@@ -231,3 +231,15 @@
 
         return [ ...$request, 'supplier_name' => $name ];
     }
+
+    function sanitizeSupplierFilter( array $request ) : array {
+        $page = intInRange( $request[ 'page' ] ?? 1, 1, PHP_INT_MAX );
+        $limit = intInRange( $request[ 'view-limit' ] ?? 12, 1, 100 ) ?: 12;
+
+        if ( $page === false ) {
+            SessionHelper::flashInit( 'errors', [ 'page' => 'Invalid page.' ] );
+            postRedirectGet( 'admin/suppliers' );
+        }
+
+        return [ ...$request, 'page' => $page, 'view-limit' => $limit ];
+    }

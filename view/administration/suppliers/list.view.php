@@ -8,6 +8,11 @@ require_once basePath( 'view/components/header.php' ) ?>
         <p><?= htmlspecialchars( $success[ 'supplier' ] ) ?></p>
     <?php } ?>
 
+    <?php if ( !empty( $errors[ 'page' ] ) ) { ?>
+        <small class="error"><?= htmlspecialchars( $errors[ 'page' ] ) ?></small>
+    <?php } ?>
+
+    <?php load( 'management/sqlPaginator.php', 'sqlPaginator', [ $page, $maxPage, $uri, $limit ] ); ?>
 
     <form action="/admin/suppliers" method="POST">
         <label>

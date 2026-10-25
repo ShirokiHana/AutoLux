@@ -8,7 +8,8 @@
     <script src="/js/query.js"></script>
 
     <style>
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -17,16 +18,43 @@
         body {
             display: flex;
             flex-direction: column;
-            background:
-                    radial-gradient(circle at 18% 22%, rgba(255, 142, 188, 0.45) 0%, transparent 45%),
-                    radial-gradient(circle at 82% 28%, rgba(112, 214, 255, 0.45) 0%, transparent 45%),
-                    radial-gradient(circle at 50% 80%, rgba(213, 187, 247, 0.4) 0%, transparent 50%),
-                    linear-gradient(135deg, #fff0f6 0%, #eef7ff 50%, #f7f0ff 100%);
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: #4a385f;
+            background-color: #f5f5f6;
+            background-image:
+                    linear-gradient(rgba(30, 28, 34, 0.045) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(30, 28, 34, 0.045) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: #302c34;
+            padding-bottom: 6rem;
+            box-sizing: border-box;
+            margin-inline: 1em;
+        }
+
+        body > table {
+            align-self: flex-start;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 0.5em;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+        }
+
+        tr > :last-child {
+            border-right: 0;
+        }
+
+        table > tr:last-child > *,
+        table > :last-child > tr:last-child > * {
+            border-bottom: 0;
         }
     </style>
     </head>

@@ -29,6 +29,7 @@ use function middleware\sanitizePayment;
 use function middleware\sanitizeRestock;
 use function middleware\sanitizeSearch;
 use function middleware\sanitizeSupplier;
+use function middleware\sanitizeSupplierFilter;
 use function middleware\supplierRequired;
 use function middleware\updateSessionClient;
 use function middleware\wipeRestockCart;
@@ -62,7 +63,9 @@ class Router {
 
             [ 'uri' => '/admin/clients/{id}', 'controller' => 'administration/clients/edit.php' ], // R5
 
-            [ 'uri' => '/admin/suppliers', 'controller' => 'administration/suppliers/list.php' ], // R6
+            [ 'uri' => '/admin/suppliers', 'controller' => 'administration/suppliers/list.php', 'middleware' => [
+                sanitizeSupplierFilter( ... )
+            ] ], // R6
 
             [ 'uri' => '/status', 'controller' => 'status/exception.php' ], // R7
 
@@ -237,6 +240,18 @@ class Router {
         try {
             CartHelper::set( $_SESSION[ 'cart' ] ?? [] );
             RestockHelper::set( $_SESSION[ 'restockCart' ] ?? [] );
+
+            // return button session store
+            if ( $method === 'GET' ) {
+                $location = $_SERVER[ 'REQUEST_URI' ] ?? $uri; // keep query string for pagination
+                $navigation = SessionHelper::get( 'navigation' );
+
+                if ( ( $navigation[ 'current' ] ?? null ) !== $location )
+                    SessionHelper::set( 'navigation', [
+                        'current' => $location,
+                        'back' => $navigation[ 'current' ] ?? '/',
+                    ] );
+            }
         } catch ( Exception $exception ) {
             abort( throw new Exception( "Internal Server Error: $exception" ), 500 );
         }
